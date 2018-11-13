@@ -28,22 +28,7 @@ int main(int argc, char** argv){
   zhalo=0;
   time_t start;
   time (&start);
-  // check if there is a file with R,z
-  // check if it exists
-  std:: string fileRz = "Rz.txt";
-  std:: ifstream infileRz;
-  infileRz.open(fileRz.c_str());
-  std:: vector<double> Ri,zi;
-  if(infileRz.is_open()){
-    double aa,bb;
-    std:: cout << " Rz.txt exists I will read it! " << std:: endl;
-    while(infileRz >> aa >> bb){
-      Ri.push_back(aa);
-      zi.push_back(bb);
-    }
-    infileRz.close();
-    std:: cout << " file read and it has " << Ri.size() << " lines " << std:: endl;
-  }
+  
   Th = gsl_rng_default;
   Thfof = gsl_rng_default;
   rh = gsl_rng_alloc (Th);
@@ -69,9 +54,7 @@ int main(int argc, char** argv){
   std:: cout << " time to initialize cosmological model " << difftime(tread,start) << " sec" << std:: endl;
   struct PlaneList pl;
   struct PinocchioPLC pinPLC;
-
   readPinocchio(&pinPLC,p);
-
   time (&tread);
   std:: cout << " time to read data " << difftime(tread,start) << " sec" << std:: endl;
   std:: vector<double> lm,s,ls;
@@ -184,72 +167,61 @@ int main(int argc, char** argv){
 
     if(mass>0 && concentration>0 && zli<zsmax){
 
+      // Creating a pointer to an instance of a halo with mass 'mass'
+      //redshift 'redshift' assuming a virial halo if 'twohundrec' == False
+      // or '200c' otherwise
       ha = new halo(&co,mass,redshift,twohundredc);
+      // Creating a pointer to an instance of a nfwhalo
+      // with concentration 'concentration'
       nha = new nfwHalo(*ha,concentration);
+      // Creating a pointer to an instance of a nfwlens
+      // with the redshift of source 'zsmax'
       nLha = new nfwLens(*nha,zsmax);
+
       double rs = nLha->getScaleRadius();
       double Radius = nLha->getRvir();
       Radii[i] = Radius;
-
 	    // is in unit of the scale radius
-	    // TEST redshift evolution!!!
-	    double Rz = Radius*fabs(p.cutR)/rs;
-	    double fR=-1;
-	    if(Ri.size()>0){
-	      fR = getY(zi,Ri,redshift);
-	      Rz = Radius*fR/rs;
-	    }
+	    double Rz = Radius/rs;
 	    int xi0=locate(p.x,ra);
 	    xi0=GSL_MIN( GSL_MAX( xi0, 0 ), p.nx-1 );
 	    int yi0=locate(p.y,dec);
 	    yi0=GSL_MIN( GSL_MAX( yi0, 0 ), p.ny-1 );
 	    double Dl = (co.angularDist(0.,redshift)*co.cn.lightspeed*1.e-7);
-	    // TEST redshift evolution!!!
-	    // double dr = Radius*fabs(p.cutR/pow(1+redshift,0.5))/Dl;
-	    double dr = Radius*fabs(p.cutR)/Dl;
-	    if(fR>0){
-	      dr = Radius*fR/Dl;
-	    }
+      // Computing the square box around the halo angular positions "ra" and "dec"
+      // that will be filled according to nfw profile
+      double dr = Radius/Dl;
 	    p.xmin = ra - dr;
 	    p.xmax = ra + dr;
 	    p.ymin = dec - dr;
 	    p.ymax = dec + dr;
 	    int imin=0, imax=p.nx-1, jmin=0, jmax=p.ny-1;
-	    // std:: cout << "  Dl " << Dl << std:: endl;
-	    // check the buffer !!!
+
 	    locateHalo(p,ra,dec,dr,imin,imax,jmin,jmax);
-	    // outputs should be jmin, jmax, imin, imax
+
 	    if(imin<0) imin =0;
 	    if(jmin<0) jmin =0;
 	    for(int ij=0;ij<p.nzs;ij++){
-	      dlens[ij] = (co.angularDist(zli,p.zs[ij])/co.angularDist(0.0,p.zs[ij]))/(co.angularDist(zli,zsmax)/dsmax);
+	      dlens[ij] = (co.angularDist(zli,p.zs[ij])/co.angularDist(0.0,p.zs[ij]))/
+                                      (co.angularDist(zli,zsmax)/dsmax);
 	    }
-	    for(int jj=jmin; jj<=jmax; jj++ ) for(int ii=imin; ii<=imax; ii++ ){
-	      double dx=(p.x[ii]-ra);
-	      double dy=(p.y[jj]-dec);
-	      double r=sqrt( dx*dx+dy*dy );
-	      if(r<=dr){
-	        if(p.cutR>0){
-		        for(int ij=0;ij<p.nzs;ij++){
-		          // this need to be in Mpc/h physical!!!
-		          if(zli>=p.z1[ij] && zli<p.zs[ij]){
-		            kappa[ij][ii+p.nx*jj]+=(nLha->kappaz(Dl*r/rs,Rz)*dlens[ij]);
-		          }
-		        }
-	        }else{
-		        for(int ij=0;ij<p.nzs;ij++){
-		          // this need to be in Mpc/h physical!!!
-		          // if negative consider the integral up to infinity
-		          if(zli>=p.z1[ij] && zli<p.zs[ij]){
-		            kappa[ij][ii+p.nx*jj]+=(nLha->kappa(Dl*r/rs)*dlens[ij]);
-		          }
-		        }
-	        }
+	    for(int jj=jmin; jj<=jmax; jj++ )
+        for(int ii=imin; ii<=imax; ii++ ){
+	        double dx=(p.x[ii]-ra);
+	        double dy=(p.y[jj]-dec);
+	        double r=sqrt( dx*dx+dy*dy );
+	        if(r<=dr){
+	           for(int ij=0;ij<p.nzs;ij++){
+		             // this need to be in Mpc/h physical!!!
+		             if(zli>=p.z1[ij] && zli<p.zs[ij]){
+		               kappa[ij][ii+p.nx*jj]+=(nLha->kappaz(Dl*r/rs,Rz)*dlens[ij]);
+		             }
+		         }
+	         }
 	      }
-	      delete ha;
-	      delete nha;
-	      delete nLha;
-      }
+	    delete ha;
+	    delete nha;
+	    delete nLha;
     }
   }
 

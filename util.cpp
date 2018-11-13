@@ -103,16 +103,22 @@ void readInput(struct InputParams *p, std::string name){
     exit(1);
   }
   std:: string str;
-  fin >> str;
-  fin >> p->omegam;          //  1. omega matter
-  fin >> str;
-  fin >> p->omegal;          //  2. omega lambda
-  fin >> str;
-  fin >> p->h0;              //  3. hubble constant in unit of 100
-  fin >> str;
-  fin >> p->wq;              //  4. dark energy equation of state parameter
-  fin >> str;
-  fin >> p->nzs;             //  5. number of source redshifts to consider
+  std::getline(fin, str);
+  std::getline(fin, str);
+  p->omegam = std::stof(str);//  1. omega matter
+  std::getline(fin, str);
+  std::getline(fin, str);
+  p->omegal = std::stof(str); //  2. omega lambda
+  std::getline(fin, str);
+  std::getline(fin, str);
+  p->h0 = std::stof(str);     //  3. hubble constant in unit of 100
+  std::getline(fin, str);
+  std::getline(fin, str);
+  p->wq = std::stof(str);              //  4. dark energy equation of state parameter
+  std::getline(fin, str);
+  std::getline(fin, str);
+  p->nzs = std::stoi(str);             //  5. number of source redshifts to consider
+  std::getline(fin, str);
   if(p->nzs<-1){
     // build differencial convergence maps
     lenses = 1;
@@ -127,39 +133,35 @@ void readInput(struct InputParams *p, std::string name){
     }
     lenses = 0;
   }
-  fin >> str;
   p->z1.resize(p->nzs);
   p->zs.resize(p->nzs);
   for(int i=0;i<p->nzs;i++){
-    fin >> p->zs[i];              //  5. source redshift (1:nzs)
+    std::getline(fin, str);
+    p->zs[i] = std::stof(str);              //  6. source redshift (1:nzs)
   }
-  fin >> str;
-  fin >> p->cutR;            //  6. radius at which cut the density profile in 1/Rvir
-  fin >> str;
-  fin >> p->nx;              // 7. number of pixels in x
-  fin >> str;
-  fin >> p->ny;              // 8. number of pixels in y
-  fin >> str;
-  fin >> p->fx;              // 9. size of the field of view in x
-  fin >> str;
-  fin >> p->fy;              // 10. size of the field of view in y
-  fin >> str;
-  fin >> p->filsigma;        // 11. file with lm s relation to be adopted
-  fin >> str;
-  fin >> p->cMrelation;      // 12. c-M relation 
-  fin >> str;
-  fin >> p->sigmalnC;        // 13. scatter in the c-M relation if a c-M model is used
-  fin >> str;
-  fin >> p->halodef;         // 14. vir use FOF haloes
-  fin >> str;
-  fin >> p->simcase;         // 15. MapSim files or Pinocchio PLC file
-  fin >> str;
-  fin >> p->PinocchioFile;   // 16. Pinocchio PLC file, needed for Pincchio and BegognaCAT
-  if(fabs(p->cutR)<1e-4){
-    std:: cout << " cutR parameter too small = " << p->cutR << std:: endl;
-    std:: cout << " check this out ... for now I will STOP here!!! " << std:: endl;
-    exit(1);
-  }
+  std::getline(fin, str);
+  std::getline(fin, str);
+  p->nx = std::stoi(str);              // 7. number of pixels in x
+  std::getline(fin, str);
+  std::getline(fin, str);
+  p->ny = std::stoi(str);              // 8. number of pixels in y
+  std::getline(fin, str);
+  std::getline(fin, str);
+  p->fx = std::stof(str);              // 9. size of the field of view in x
+  std::getline(fin, str);
+  std::getline(fin, str);
+  p->fy = std::stof(str);              // 10. size of the field of view in y
+  std::getline(fin, str);
+  std::getline(fin, p->filsigma);      // 11. file with lm s relation to be adopted
+  std::getline(fin, str);
+  std::getline(fin, p->cMrelation);     // 12. c-M relation
+  std::getline(fin, str);
+  std::getline(fin, str);
+  p->sigmalnC = std::stof(str);        // 13. scatter in the c-M relation if a c-M model is used
+  std::getline(fin, str);
+  std::getline(fin, p->halodef);   // 14. vir use FOF haloes
+  std::getline(fin, str);
+  std::getline(fin, p->PinocchioFile );   // 15. Pinocchio PLC file, needed for Pincchio and BegognaCAT
 
   std:: cout << "  " << std:: endl;
   std:: cout << "  ___________________________________________"  << std:: endl;
@@ -185,7 +187,6 @@ void readInput(struct InputParams *p, std::string name){
     }
     std:: cout << "  " << std:: endl;
   }
-  std:: cout << "  Rcut             = " << p->cutR << std:: endl;
   std:: cout << "  path catalogues  = " << p->pathcats << std:: endl;
   std:: cout << "  nx = " << p->nx << "  ny = " << p->ny << std:: endl;
   std:: cout << "  field of view: x = " << p->fx << "  y = " << p->fy << std:: endl;
@@ -194,23 +195,13 @@ void readInput(struct InputParams *p, std::string name){
   if(fillms.is_open()){
     std:: cout << "  file lm s rel    = " << p->filsigma << std:: endl;
   }else{
-    if(p->filsigma=="sim"){
-      std:: cout << " no file for the lm s relation ... I will use Vmax and Rmax from the simulation " << std:: endl;
-      std:: cout << " since filsigma variable is set equal to sim " << std:: endl;
-    }else{
-      std:: cout << " no file for the lm s relation ... I will use Neto08+Bullock01 " << std:: endl;
-    }
+    std:: cout << " no file for the lm s relation ... I will use " << p->cMrelation << std:: endl;
+
   }
   std:: cout << "  scatter lnC      = " << p->sigmalnC << std:: endl;
-  if(p->simcase=="Pinocchio"){
-    std:: cout << " I will build the map assuming "<< p->halodef <<" masses " << std:: endl;
-    std:: cout <<  " Effective convergence map will be built using Pinocchio PLC output file " << std:: endl;
-    std:: cout << p->PinocchioFile << std:: endl;
-  }else{
-    std:: cout << " wrong parameter in the input file for simcase " << p->simcase  << std:: endl;
-    std:: cout << " I will STOP here!!! " << std:: endl;
-    exit(1);
-  }
+  std:: cout << " I will build the map assuming "<< p->halodef <<" masses " << std:: endl;
+  std:: cout <<  " Effective convergence map will be built using Pinocchio PLC output file " << std:: endl;
+  std:: cout << p->PinocchioFile << std:: endl;
   std:: cout << "  ___________________________________________"  << std:: endl;
   std:: cout << "  " << std:: endl;
 }
@@ -284,7 +275,7 @@ void writeFits(std:: string filename,std:: valarray<float> f, int npix, int npix
   double yo = double(npixy)/2.+1;
   long naxis=2;
   long naxes[2]={npix,npixy};
-  std::auto_ptr<FITS> fout(new FITS(filename,FLOAT_IMG,naxis,naxes));
+  std::unique_ptr<FITS> fout(new FITS(filename,FLOAT_IMG,naxis,naxes));
   std::vector<long> naxex(2);
   naxex[0]=npix;
   naxex[1]=npixy;

@@ -69,14 +69,12 @@ struct InputParams{
   std:: vector<double> z1;     // lower redshift in case lenses=1
   std:: string pathcats;       // path fof and subs cat
   double omegam,omegal,h0,wq;  // cosmological parameters
-  double cutR;                 // radius at which the profile is cut along the line of sight
   int nx,ny;                   // number of pixels in x and y directions
   double fx,fy;                // size of the field of view in x and y
-  std:: string cMrelation;     // c-M relation to be used 
+  std:: string cMrelation;     // c-M relation to be used
   std:: string filsigma;       // file contaning lm s relation used for c-M Zhao
   double sigmalnC;             // scatter in the c-M relation if a c-M model is used
   std:: string halodef;        // vir use FOF haloes
-  std:: string simcase;        // MapSim files, Pinocchio PLC or Begogna CAT
   std:: string PinocchioFile;  // PLC Pinocchio file or Begogna CAT
   // other varialbles in the structure
   double xmin,xmax,ymin,ymax;

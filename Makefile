@@ -23,12 +23,19 @@ SOURCES = ../Moka/utilities.cpp \
           ../Moka/sisHalo.cpp \
           ../Moka/sisLens.cpp
 
-# gsl, cfitsio, CCfits, fftw
-LIBS = -L/home/tcastro/lib/ -lCCfits -lcfitsio -lfftw3_mpi -lfftw3 -lgslcblas -lgsl -lm
 
 # gsl, cfitsio, CCfits, fftw
-ALLFLAGS = -I/home/tcastro/include/\
-           -I/home/tcastro/include/CCFits
+LIBS = -L/scratch/lenssims/tiago.castro/lib/ -lgslcblas -lgsl \
+       -L/scratch/lenssims/tiago.castro/lib/ \
+       -L/scratch/lenssims/tiago.castro/lib/ -lCCfits -lcfitsio \
+       -L/scratch/app/fftw/3.3.5_bullxmpi-gnu/lib -lfftw3_mpi -lfftw3
+
+# gsl, cfitsio, CCfits, fftw
+ALLFLAGS = -I/scratch/lenssims/tiago.castro/include/ \
+           -I/scratch/lenssims/tiago.castro/include/gsl \
+           -I/scratch/lenssims/tiago.castro/include/CCfits \
+           -I/scratch/app/fftw/3.3.5_bullxmpi-gnu/include
+
 #
 DEBUG = -g
 # compiler -Wall # use this to optimize -O2
