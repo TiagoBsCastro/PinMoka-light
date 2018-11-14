@@ -1,8 +1,8 @@
 #####################################################################
 #                                                                   #
-#               Make file for MOKA                                  #
+#               Make file for PinMoka                               #
 #                                                                   #
-#                         cgiocoli@gmail.com                        #
+#                         tiagobscastro@gmail.com                   #
 #####################################################################
 
 # executable name
@@ -73,25 +73,3 @@ clall0:
 	$(RM) $(PROG) $(OBJ) libmoka.a *~ html *.o
 
 new: clean default
-
-help:
-	$(CLEAR)
-	@echo
-	@echo make - compile extlib, lib and main linking lib
-	@echo make main - compile main linking lib
-	@echo make lib - compile only internal lib
-	@echo make clean - rm .o and executable
-	@echo make clall - rm .o .a *.~ and executable
-	@echo make clall0 - rm .o .a *.~ executable and html doxygen
-	@echo
-	@echo - - - Moka written by Carlo Giocoli
-	@echo "                   " Matthias Bartelmann
-	@echo "                   " Massimo Meneghetti
-	@echo "          " please contact them for more
-	@echo "          " detalis: carlo.giocoli@unibo.it
-	@echo "                   " bartelmann@uni-heidelberg.de
-	@echo "                   " massimo.meneghetti@oabo.inaf.it
-	@echo "                   " margarita.petkova@unibo.it
-	@echo
-	@echo  website: http://cgiocoli.wordpress.com/research-interests/moka
-	@echo
