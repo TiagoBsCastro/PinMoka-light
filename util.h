@@ -16,6 +16,8 @@
 #include <gsl/gsl_sf.h>
 #include <CCfits/CCfits>
 #include "time.h"
+#include <math.h>
+#define READ_PLC_BINARY
 
 extern long idhalo;
 extern double zhalo;

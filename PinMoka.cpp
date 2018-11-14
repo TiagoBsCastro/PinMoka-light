@@ -1,5 +1,5 @@
 /***********************************************************/
-/*   PinMoka | check this out in the Makefile!             */
+/*         PinMoka | check this out in the Makefile!       */
 /* Constructed on top of WeakLMoka code from Carlo Giocoli */
 /*                                                         */
 /***********************************************************/
@@ -13,7 +13,6 @@ gsl_rng * rh; // host halo concentration
 const gsl_rng_type * Thfof;
 gsl_rng * rhfof; // host halo concentration fof
 int lenses;
-long idhalo;
 double zhalo;
 
 int main(int argc, char** argv){
@@ -24,11 +23,10 @@ int main(int argc, char** argv){
   }
 
   string inifile=argv[1];
-  idhalo=-10;
   zhalo=0;
   time_t start;
   time (&start);
-  
+
   Th = gsl_rng_default;
   Thfof = gsl_rng_default;
   rh = gsl_rng_alloc (Th);

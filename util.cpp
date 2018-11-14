@@ -14,83 +14,123 @@ inline bool exists_file (const std::string& name) {
   return (stat (name.c_str(), &buffer) == 0);
 }
 
-// read PLC Pinocchio file
-void readPinocchio(struct PinocchioPLC *pinPLC, struct InputParams p){
-  int di0=0;
-  std:: ifstream ifilinp(p.PinocchioFile.c_str());
-  if(ifilinp.is_open()){
-    int dummy;
-    DATA data;
-    int n=0;
-    double ra0P=0;
-    double dec0P=0;
-    while( ifilinp.read( (char *)&dummy, sizeof(dummy) ) ){
-       ifilinp >> data;
-       ifilinp.read((char *)&dummy, sizeof(dummy));
-       /*std:: cout << data.group_id << "   " <<  data.group_mass << "   " <<  data.true_z << "   " <<  data.pos[0] << "   "
-       <<  data.pos[1] << "   " <<  data.pos[2] << "   " <<  data.vel[0] << "   " <<  data.vel[1] << "   "
-       <<  data.vel[2] << "   " <<  data.theta << "   " <<  data.phi << "   " <<  data.pv << "   "  << data.obs_z << std:: endl;
-       */
-      if(data.group_id!=idhalo || fabs(data.true_z-zhalo)>1e-4){
-        pinPLC->id.push_back(data.group_id);
-        pinPLC->mass.push_back( data.group_mass );
-        pinPLC->redshift.push_back( data.true_z );
-        pinPLC->x_c.push_back( data.pos[0] );
-        pinPLC->y_c.push_back( data.pos[1] );
-        pinPLC->z_c.push_back( data.pos[2] );
-        pinPLC->vx.push_back( data.vel[0] );
-        pinPLC->vy.push_back( data.vel[1] );
-        pinPLC->vz.push_back( data.vel[2] );
-        pinPLC->theta.push_back( data.theta );
-        pinPLC->phi.push_back( data.phi );
-        pinPLC->pec_vel.push_back( data.pv );
-        pinPLC->obs_redshift.push_back( data.obs_z );
-        double ri = sqrt(data.pos[0]*data.pos[0]+data.pos[1]*data.pos[1]+data.pos[2]*data.pos[2]);
-        double xc = ri*sin((90-data.theta)*M_PI/180.)*cos(data.phi*M_PI/180.);
-        double yc = ri*sin((90-data.theta)*M_PI/180.)*sin(data.phi*M_PI/180.);
-        double zc = ri*cos((90-data.theta)*M_PI/180.);
-        double dec = asin(xc/ri);
-        double ra  = atan(yc/zc);
-        pinPLC->ra.push_back( ra );
-        pinPLC->dec.push_back( dec );
-        n++;
-      }else{
-        if(idhalo>0){
-          // has been read from the file compute its quantities
+#ifdef READ_PLC_BINARY
+// read binary PLC Pinocchio file
+  void readPinocchio(struct PinocchioPLC *pinPLC, struct InputParams p){
+    std:: ifstream ifilinp(p.PinocchioFile.c_str());
+    if(ifilinp.is_open()){
+      int dummy;
+      DATA data;
+      int n=0;
+      while( ifilinp.read( (char *)&dummy, sizeof(dummy) ) ){
+        ifilinp >> data;
+        ifilinp.read((char *)&dummy, sizeof(dummy));
+        /*std:: cout << data.group_id << "   " <<  data.group_mass << "   " <<  data.true_z << "   " <<  data.pos[0] << "   "
+        <<  data.pos[1] << "   " <<  data.pos[2] << "   " <<  data.vel[0] << "   " <<  data.vel[1] << "   "
+        <<  data.vel[2] << "   " <<  data.theta << "   " <<  data.phi << "   " <<  data.pv << "   "  << data.obs_z << std:: endl;*/
+
+        if(fabs(data.true_z-zhalo)>1e-4){
+          pinPLC->id.push_back(data.group_id);
+          pinPLC->mass.push_back( data.group_mass );
+          pinPLC->redshift.push_back( data.true_z );
+          pinPLC->x_c.push_back( data.pos[0] );
+          pinPLC->y_c.push_back( data.pos[1] );
+          pinPLC->z_c.push_back( data.pos[2] );
+          pinPLC->vx.push_back( data.vel[0] );
+          pinPLC->vy.push_back( data.vel[1] );
+          pinPLC->vz.push_back( data.vel[2] );
+          pinPLC->theta.push_back( data.theta );
+          pinPLC->phi.push_back( data.phi );
+          pinPLC->pec_vel.push_back( data.pv );
+          pinPLC->obs_redshift.push_back( data.obs_z );
           double ri = sqrt(data.pos[0]*data.pos[0]+data.pos[1]*data.pos[1]+data.pos[2]*data.pos[2]);
           double xc = ri*sin((90-data.theta)*M_PI/180.)*cos(data.phi*M_PI/180.);
           double yc = ri*sin((90-data.theta)*M_PI/180.)*sin(data.phi*M_PI/180.);
           double zc = ri*cos((90-data.theta)*M_PI/180.);
-          dec0P = asin(xc/ri);
-          ra0P  = atan(yc/zc);
-          // check if we can build such field of view without wrapping the boundaries of the cone...
-          std:: cout << " center in " << ra0P << "  " << dec0P << std:: endl;
+          double dec = asin(xc/ri);
+          double ra  = atan(yc/zc);
+          pinPLC->ra.push_back( ra );
+          pinPLC->dec.push_back( dec );
+          n++;
         }
       }
-    }
-    pinPLC->nhaloes=n;
-    if(di0==0){
-      // need to recenter ra and dec if idhalo>0
-      for(int i=0;i<pinPLC->nhaloes;i++){
-        pinPLC->ra[i] -= ra0P;
-        pinPLC->dec[i] -= dec0P;
-      }
+      pinPLC->nhaloes=n;
+      std:: cout << " nhaloes in Pinocchio PLC file = " << n << std:: endl;
+      std:: cout << "  " << std:: endl;
+      //
+      //std:: vector<long> id;
+      //std:: vector<double> mass,redshift,x_c,y_c,z_c,vx,vy,vz,theta,phi,pec_vel,obs_redshift;
     }else{
-      std:: cout << " wrapping cone boundary conditions not implemented yet! " << std:: endl;
+      std:: cout << " the PLC file " << p.PinocchioFile << " does not exist " << std:: endl;
+      std:: cout << " I will STOP here!!! " << std:: endl;
       exit(1);
-      // need to recenter ra and dec if idhalo>0 and wrap period boundaries conditions of the cone
     }
-    std:: cout << " nhaloes in Pinocchio PLC file = " << n << std:: endl;
-    std:: cout << "  " << std:: endl;
-    //
-    //std:: vector<long> id;
-    //std:: vector<double> mass,redshift,x_c,y_c,z_c,vx,vy,vz,theta,phi,pec_vel,obs_redshift;
-  }else{
-    std:: cout << " the PLC file " << p.PinocchioFile << " does not exist " << std:: endl;
-    std:: cout << " I will STOP here!!! " << std:: endl;
-    exit(1);
   }
-}
+#else
+  // read PLC ASCII Pinocchio file
+  void readPinocchio(struct PinocchioPLC *pinPLC, struct InputParams p){
+    std:: ifstream ifilinp;
+    ifilinp.open(p.PinocchioFile.c_str());
+    if(ifilinp.is_open()){
+      for(int i=0;i<58;i++){
+        string sbut;
+        ifilinp >> sbut;
+      }
+      long id;
+      double mass,redshift,x_c,y_c,z_c,vx,vy,vz,theta,phi,pec_vel,obs_redshift;
+      int n=0;
+      while(ifilinp >> id
+        >> redshift
+        >> x_c >> y_c >> z_c
+        >> vx >> vy >> vz
+        >> mass
+        >> theta
+        >> phi
+        >> pec_vel
+        >> obs_redshift)
+        {
+          /*std:: cout << id << "   " <<  mass << "   " <<  redshift << "   " <<  x_c << "   "
+          <<  y_c << "   " <<  z_c << "   " <<  vx << "   " <<  vy << "   "
+          <<  vz << "   " <<  theta << "   " <<  phi << "   " <<  pec_vel << "   "  << obs_redshift << std:: endl;*/
+          if(fabs(redshift-zhalo)>1e-4){
+            pinPLC->id.push_back(id);
+            pinPLC->mass.push_back(mass);
+            pinPLC->redshift.push_back(redshift);
+            pinPLC->x_c.push_back(x_c);
+            pinPLC->y_c.push_back(y_c);
+            pinPLC->z_c.push_back(z_c);
+            pinPLC->vx.push_back(vx);
+            pinPLC->vy.push_back(vy);
+            pinPLC->vz.push_back(vz);
+            pinPLC->theta.push_back(theta);
+            pinPLC->phi.push_back(phi);
+            pinPLC->pec_vel.push_back(pec_vel);
+            pinPLC->obs_redshift.push_back(obs_redshift);
+            double ri = sqrt(x_c*x_c + y_c*y_c + z_c*z_c);
+            double xc = ri*sin((90-theta)*M_PI/180.)*cos(phi*M_PI/180.);
+            double yc = ri*sin((90-theta)*M_PI/180.)*sin(phi*M_PI/180.);
+            double zc = ri*cos((90-theta)*M_PI/180.);
+            double dec = asin(xc/ri);
+            double ra  = atan(yc/zc);
+            pinPLC->ra.push_back(ra);
+            pinPLC->dec.push_back(dec);
+            n++;
+          }
+        }
+        pinPLC->nhaloes=n;
+        // need to recenter ra and dec if idhalo>0
+        std:: cout << " nhaloes in Pinocchio PLC file = " << n << std:: endl;
+        std:: cout << "  " << std:: endl;
+        //
+        //std:: vector<long> id;
+        //std:: vector<double> mass,redshift,x_c,y_c,z_c,vx,vy,vz,theta,phi,pec_vel,obs_redshift;
+      }else{
+        std:: cout << " the PLC file " << p.PinocchioFile << " does not exist " << std:: endl;
+        std:: cout << " I will STOP here!!! " << std:: endl;
+        exit(1);
+      }
+    }
+#endif
 
 // read the input file "weaklensingMOKA.ini"
 void readInput(struct InputParams *p, std::string name){
