@@ -224,12 +224,12 @@ int main(int argc, char** argv){
   }
 
   for(int ij=0;ij<p.nzs;ij++){
-    // km
-    float km = kappa[ij].sum()/(p.nx*p.ny);
+    // One should not enforce <kappa>=0!
+    /*float km = kappa[ij].sum()/(p.nx*p.ny);
     for(int jj=0; jj<p.ny; jj++ ) for(int ii=0; ii<p.nx; ii++ ){
-	     // test
+	     
 	     kappa[ij][ii+p.nx*jj] = (kappa[ij][ii+p.nx*jj]-km);
-    }
+    }*/
     std:: string szid;
     std:: ostringstream oszid;
     oszid << ij;
