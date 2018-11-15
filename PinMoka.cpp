@@ -17,12 +17,13 @@ double zhalo;
 
 int main(int argc, char** argv){
 
-  if (argc!=2){
-    std::cout<< "No params!! I'll Stop here!!" <<std::endl;
+  if (argc!=3){
+    std::cout<< "No params and Compute Pk option!! I'll Stop here!!" <<std::endl;
     return -1;
   }
 
   string inifile=argv[1];
+  bool computePk = bool (argv[2])
   zhalo=0;
   time_t start;
   time (&start);
@@ -227,7 +228,7 @@ int main(int argc, char** argv){
     // One should not enforce <kappa>=0!
     /*float km = kappa[ij].sum()/(p.nx*p.ny);
     for(int jj=0; jj<p.ny; jj++ ) for(int ii=0; ii<p.nx; ii++ ){
-	     
+
 	     kappa[ij][ii+p.nx*jj] = (kappa[ij][ii+p.nx*jj]-km);
     }*/
     std:: string szid;
@@ -240,19 +241,25 @@ int main(int argc, char** argv){
     std:: string plcsufix = p.PinocchioFile.substr(name_begin,name_end);
     std:: string filout = "!kappa_" + plcsufix + "_" + szid + ".fits";
     writeFits(filout,kappa[ij],p.nx,p.ny,p.zs[ij],fxrad,fyrad,ra_c,dec_c);
-    int nb = 128;
 
-    double *ll;
-    double *Pl;
-    ll=new double[nb];
-    Pl=new double[nb];
-    powerl(kappa[ij],kappa[ij],p.nx,p.ny,fxrad,fyrad,ll,Pl,nb);
-    std:: ofstream outfile;
-    outfile.open("mapPowerSpectrum_" + plcsufix + "_" + szid+ ".dat");
-    for(int i=0;i<nb;i++){
-      outfile << ll[i] << "  " << Pl[i] << std::endl;
+    if(computePk){
+
+      int nb = 128;
+      double *ll;
+      double *Pl;
+      ll=new double[nb];
+      Pl=new double[nb];
+      powerl(kappa[ij],kappa[ij],p.nx,p.ny,fxrad,fyrad,ll,Pl,nb);
+      std:: ofstream outfile;
+      outfile.open("mapPowerSpectrum_" + plcsufix + "_" + szid+ ".dat");
+      for(int i=0;i<nb;i++){
+        outfile << ll[i] << "  " << Pl[i] << std::endl;
+      }
+
+      outfile.close();
+
     }
-    outfile.close();
+
   }
   std:: cout << " end of work ... ;-) " << std:: endl;
   return 0;
