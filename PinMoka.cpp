@@ -23,7 +23,7 @@ int main(int argc, char** argv){
   }
 
   string inifile=argv[1];
-  bool computePk = bool (argv[2]);
+  bool computePk = bool (std::stoi(argv[2]));
   zhalo=0;
   time_t start;
   time (&start);
