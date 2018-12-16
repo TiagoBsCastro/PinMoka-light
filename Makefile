@@ -7,7 +7,7 @@
 
 # executable name
 PROG = bin/PinMoka.x
-
+PREFIXDIR = /home/$(USER)
 MAIN = PinMoka.cpp power2D.cpp cMZhao.cpp cMBhattacharya.cpp util.cpp
 
 # .cpp lib internal in MOKA
@@ -25,16 +25,15 @@ SOURCES = ../Moka/utilities.cpp \
 
 
 # gsl, cfitsio, CCfits, fftw
-LIBS = -L/scratch/lenssims/tiago.castro/lib/ -lgslcblas -lgsl \
-       -L/scratch/lenssims/tiago.castro/lib/ \
-       -L/scratch/lenssims/tiago.castro/lib/ -lCCfits -lcfitsio \
-       -L/scratch/app/fftw/3.3.5_bullxmpi-gnu/lib -lfftw3_mpi -lfftw3
+LIBS = -L$(PREFIXDIR)/lib/ -lgslcblas -lgsl \
+       -L$(PREFIXDIR)/lib/ -lm \
+       -L$(PREFIXDIR)/lib/ -lCCfits -lcfitsio \
+       -L$(PREFIXDIR)/lib/ -lfftw3_mpi -lfftw3
 
 # gsl, cfitsio, CCfits, fftw
-ALLFLAGS = -I/scratch/lenssims/tiago.castro/include/ \
-           -I/scratch/lenssims/tiago.castro/include/gsl \
-           -I/scratch/lenssims/tiago.castro/include/CCfits \
-           -I/scratch/app/fftw/3.3.5_bullxmpi-gnu/include
+ALLFLAGS = -I$(PREFIXDIR)/include/ \
+           -I$(PREFIXDIR)/include/gsl \
+           -I$(PREFIXDIR)/include/CCfits
 
 #
 DEBUG = -g

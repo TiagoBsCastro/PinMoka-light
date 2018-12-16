@@ -19,14 +19,10 @@
 #include <math.h>
 #define READ_PLC_BINARY
 
-extern long idhalo;
-extern double zhalo;
-
 extern const gsl_rng_type * Th;
 extern gsl_rng * rh; // host halo concentration
 extern const gsl_rng_type * Thfof;
 extern gsl_rng * rhfof; // host halo concentration fof
-extern int lenses;
 
 // Pinocchio PLC DATA Structure
 struct DATA
@@ -66,7 +62,7 @@ struct gslfparams_fc{
 
 // parameters in the input file
 struct InputParams{
-  int nzs;               // number of source redshifts and number of cutRadius
+  int nzs;                     // number of source redshifts and number of cutRadius
   std:: vector<double> zs;     // redshifts of the sources
   std:: vector<double> z1;     // lower redshift in case lenses=1
   std:: string pathcats;       // path fof and subs cat
@@ -78,6 +74,7 @@ struct InputParams{
   double sigmalnC;             // scatter in the c-M relation if a c-M model is used
   std:: string halodef;        // vir use FOF haloes
   std:: string PinocchioFile;  // PLC Pinocchio file or Begogna CAT
+  int lenses;                  // Lenses option (will be deducted from InputFiles)
   // other varialbles in the structure
   double xmin,xmax,ymin,ymax;
   std:: vector<double> x,y;

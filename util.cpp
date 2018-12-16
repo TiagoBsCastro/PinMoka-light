@@ -25,11 +25,11 @@ inline bool exists_file (const std::string& name) {
       while( ifilinp.read( (char *)&dummy, sizeof(dummy) ) ){
         ifilinp >> data;
         ifilinp.read((char *)&dummy, sizeof(dummy));
-        /*std:: cout << data.group_id << "   " <<  data.group_mass << "   " <<  data.true_z << "   " <<  data.pos[0] << "   "
+        std:: cout << data.group_id << "   "  <<  data.true_z << "   " <<  data.pos[0] << "   "
         <<  data.pos[1] << "   " <<  data.pos[2] << "   " <<  data.vel[0] << "   " <<  data.vel[1] << "   "
-        <<  data.vel[2] << "   " <<  data.theta << "   " <<  data.phi << "   " <<  data.pv << "   "  << data.obs_z << std:: endl;*/
+        <<  data.vel[2] << "   " <<  data.group_mass << "   " <<  data.theta << "   " <<  data.phi << "   " <<  data.pv << "   "  << data.obs_z << std:: endl;
 
-        if(fabs(data.true_z-zhalo)>1e-4){
+        if(fabs(data.true_z)>1e-4){
           pinPLC->id.push_back(data.group_id);
           pinPLC->mass.push_back( data.group_mass );
           pinPLC->redshift.push_back( data.true_z );
@@ -89,10 +89,10 @@ inline bool exists_file (const std::string& name) {
         >> pec_vel
         >> obs_redshift)
         {
-          /*std:: cout << id << "   " <<  mass << "   " <<  redshift << "   " <<  x_c << "   "
+          std:: cout << id << "   " <<  mass << "   " <<  redshift << "   " <<  x_c << "   "
           <<  y_c << "   " <<  z_c << "   " <<  vx << "   " <<  vy << "   "
-          <<  vz << "   " <<  theta << "   " <<  phi << "   " <<  pec_vel << "   "  << obs_redshift << std:: endl;*/
-          if(fabs(redshift-zhalo)>1e-4){
+          <<  vz << "   " <<  theta << "   " <<  phi << "   " <<  pec_vel << "   "  << obs_redshift << std:: endl;
+          if(fabs(redshift)>1e-4){
             pinPLC->id.push_back(id);
             pinPLC->mass.push_back(mass);
             pinPLC->redshift.push_back(redshift);
@@ -161,7 +161,7 @@ void readInput(struct InputParams *p, std::string name){
   std::getline(fin, str);
   if(p->nzs<-1){
     // build differencial convergence maps
-    lenses = 1;
+    p->lenses = 1;
     std:: cout << " number of zs " << p->nzs << std:: endl;
     std:: cout << " I will build differencial convergence maps " << std:: endl;
     p->nzs = -p->nzs;
@@ -171,7 +171,7 @@ void readInput(struct InputParams *p, std::string name){
       std:: cout << " check this out, I will STOP here!!! " << std:: endl;
       exit(1);
     }
-    lenses = 0;
+    p->lenses = 0;
   }
   p->z1.resize(p->nzs);
   p->zs.resize(p->nzs);
@@ -210,23 +210,25 @@ void readInput(struct InputParams *p, std::string name){
   std:: cout << "  Omegal           = " << p->omegal << std:: endl;
   std:: cout << "  Hubble parameter = " << p->h0 << std:: endl;
   std:: cout << "  w                = " << p->wq << std:: endl;
-  p->z1[0] = -1;
-  if(p->nzs==1){
+  if(p->nzs==1)
     std:: cout << "  source redshift  = " << p->zs[0] << std:: endl;
-  }else{
+  else
     std:: cout << "  source redshifts  = ";
-    for(int i=0;i<p->nzs;i++){
-      std:: cout << p->zs[i] << "  ";
-      if(i>0){
-	if(lenses==1){
-	  p->z1[i] = p->zs[i-1];
-	}else{
-	  p->z1[i] = 0;
-	}
-      }
+
+  for(int i=0;i<p->nzs;i++){
+    std:: cout << p->zs[i] << "  ";
+    if(i>0){
+	    if(p->lenses==1)
+	      p->z1[i] = p->zs[i-1];
+	    else
+	      p->z1[i] = 0;
+
+    }else{
+      p->z1[i] = 0;
     }
-    std:: cout << "  " << std:: endl;
   }
+  std:: cout << "  " << std:: endl;
+
   std:: cout << "  path catalogues  = " << p->pathcats << std:: endl;
   std:: cout << "  nx = " << p->nx << "  ny = " << p->ny << std:: endl;
   std:: cout << "  field of view: x = " << p->fx << "  y = " << p->fy << std:: endl;

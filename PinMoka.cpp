@@ -12,8 +12,6 @@ const gsl_rng_type * Th;
 gsl_rng * rh; // host halo concentration
 const gsl_rng_type * Thfof;
 gsl_rng * rhfof; // host halo concentration fof
-int lenses;
-double zhalo;
 
 int main(int argc, char** argv){
 
@@ -24,7 +22,6 @@ int main(int argc, char** argv){
 
   string inifile=argv[1];
   bool computePk = bool (std::stoi(argv[2]));
-  zhalo=0;
   time_t start;
   time (&start);
 
@@ -80,42 +77,33 @@ int main(int argc, char** argv){
     // use the c-M relation models
     double c;
     // means have read the lm s file set in the input paramater file
-    if(p.cMrelation=="Zhao"){
+    if(p.cMrelation=="Zhao")
 	    // Zhat+09 with the parameters of Giocoli+13
 	    // we assign the redshift of the snap for the c-M
 	    c = getCZhao(&co,pinPLC.mass[i],pinPLC.redshift[i],p.halodef); // if set use virial definition
-    }else if(p.cMrelation=="Neto"){
+    else if(p.cMrelation=="Neto")
 	    //Neto+08 cM relation evolving with z as in Bullock+10
 	    // we assign the redshift of the snap for the c-M
 	    c = getCNeto(pinPLC.mass[i],pinPLC.redshift[i]);
-    }else if(p.cMrelation=="Bhattacharya"){
+    else if(p.cMrelation=="Bhattacharya")
       //Bhattacharya+13 cM relation
       // we assign the redshift of the snap for the c-M
       c = getCBhattacharya(&co,pinPLC.mass[i],pinPLC.redshift[i],p.halodef);
-    }else{
+    else{
       std::cout << "c-M relation "<< p.cMrelation << " not valid!";
       exit(1);
     }
     if(p.sigmalnC>0.){
 	    // add a normal scatter!!!
-      if(p.cMrelation=="Zhao"){
-
+      if(p.cMrelation=="Zhao")
   	    pinPLC.concentration.push_back(gsl_ran_lognormal(rh,log(c),p.sigmalnC));
-
-      }else if(p.cMrelation=="Neto"){
-
+      else if(p.cMrelation=="Neto")
   	    pinPLC.concentration.push_back(gsl_ran_lognormal(rh,log(c),p.sigmalnC));
-
-      }else if(p.cMrelation=="Bhattacharya"){
-
+      else if(p.cMrelation=="Bhattacharya")
         pinPLC.concentration.push_back( c+gsl_ran_gaussian(rh,p.sigmalnC));
-	    }
-
-    }else{
-
+    }else
 	    pinPLC.concentration.push_back(c);
 
-    }
   }
 
   std:: cout << " done with the concentrations " << std:: endl;
@@ -152,19 +140,17 @@ int main(int argc, char** argv){
     nfwLens *nLha;
 
     double mass, concentration, redshift;
-    double zli;
     double ra,dec;
 
-    mass = pinPLC.mass[i];
+    mass          = pinPLC.mass[i];
     concentration = pinPLC.concentration[i];
-    zli=pinPLC.redshift[i];
-    redshift=zli;
-    ra=pinPLC.ra[i];
-    dec=pinPLC.dec[i];
+    redshift      = pinPLC.redshift[i];
+    ra            = pinPLC.ra[i];
+    dec           = pinPLC.dec[i];
 
     time (&tread);
 
-    if(mass>0 && concentration>0 && zli<zsmax){
+    if(mass>0 && concentration>0 && redshift<zsmax){
 
       // Creating a pointer to an instance of a halo with mass 'mass'
       //redshift 'redshift' assuming a virial halo if 'twohundrec' == False
@@ -198,23 +184,23 @@ int main(int argc, char** argv){
 
 	    locateHalo(p,ra,dec,dr,imin,imax,jmin,jmax);
 
-	    if(imin<0) imin =0;
-	    if(jmin<0) jmin =0;
+	    if(imin<0) imin = 0;
+	    if(jmin<0) jmin = 0;
 	    for(int ij=0;ij<p.nzs;ij++){
-	      dlens[ij] = (co.angularDist(zli,p.zs[ij])/co.angularDist(0.0,p.zs[ij]))/
-                                      (co.angularDist(zli,zsmax)/dsmax);
+	      dlens[ij] = (co.angularDist(redshift,p.zs[ij])/co.angularDist(0.0,p.zs[ij]))/
+                                      (co.angularDist(redshift,zsmax)/dsmax);
 	    }
 	    for(int jj=jmin; jj<=jmax; jj++ )
         for(int ii=imin; ii<=imax; ii++ ){
-	        double dx=(p.x[ii]-ra);
-	        double dy=(p.y[jj]-dec);
-	        double r=sqrt( dx*dx+dy*dy );
+	        double dx = (p.x[ii]-ra);
+	        double dy = (p.y[jj]-dec);
+	        double r  = sqrt( dx*dx+dy*dy );
+          //std::cout << r << " " << dr << std::endl;
 	        if(r<=dr){
 	           for(int ij=0;ij<p.nzs;ij++){
-		             // this need to be in Mpc/h physical!!!
-		             if(zli>=p.z1[ij] && zli<p.zs[ij]){
-		               kappa[ij][ii+p.nx*jj]+=(nLha->kappaz(Dl*r/rs,Rz)*dlens[ij]);
-		             }
+		           // this need to be in Mpc/h physical!!!
+		           if(redshift>=p.z1[ij] && redshift<p.zs[ij])
+		             kappa[ij][ii+p.nx*jj]+=(nLha->kappaz(Dl*r/rs,Rz)*dlens[ij]);
 		         }
 	         }
 	      }
