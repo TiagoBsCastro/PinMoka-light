@@ -44,11 +44,11 @@ inline bool exists_file (const std::string& name) {
           pinPLC->pec_vel.push_back( data.pv );
           pinPLC->obs_redshift.push_back( data.obs_z );
           double ri = sqrt(data.pos[0]*data.pos[0]+data.pos[1]*data.pos[1]+data.pos[2]*data.pos[2]);
-          /*double xc = ri*sin((90-data.theta)*M_PI/180.)*cos(data.phi*M_PI/180.);
+          double xc = ri*sin((90-data.theta)*M_PI/180.)*cos(data.phi*M_PI/180.);
           double yc = ri*sin((90-data.theta)*M_PI/180.)*sin(data.phi*M_PI/180.);
-          double zc = ri*cos((90-data.theta)*M_PI/180.);*/
-          double dec = asin(pinPLC->xc.back()/ri);
-          double ra  = atan(pinPLC->yc.back()/pinPLC->zc.back());
+          double zc = ri*cos((90-data.theta)*M_PI/180.);
+          double dec = asin(xc/ri);
+          double ra  = atan2(yc,zc);
           pinPLC->ra.push_back( ra );
           pinPLC->dec.push_back( dec );
           n++;
