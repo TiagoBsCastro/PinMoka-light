@@ -18,6 +18,7 @@
 #include "time.h"
 #include <math.h>
 #define READ_PLC_BINARY
+#define ROTATE_MAP
 
 extern const gsl_rng_type * Th;
 extern gsl_rng * rh; // host halo concentration

@@ -25,9 +25,9 @@ inline bool exists_file (const std::string& name) {
       while( ifilinp.read( (char *)&dummy, sizeof(dummy) ) ){
         ifilinp >> data;
         ifilinp.read((char *)&dummy, sizeof(dummy));
-        std:: cout << data.group_id << "   "  <<  data.true_z << "   " <<  data.pos[0] << "   "
+        /*std:: cout << data.group_id << "   "  <<  data.true_z << "   " <<  data.pos[0] << "   "
         <<  data.pos[1] << "   " <<  data.pos[2] << "   " <<  data.vel[0] << "   " <<  data.vel[1] << "   "
-        <<  data.vel[2] << "   " <<  data.group_mass << "   " <<  data.theta << "   " <<  data.phi << "   " <<  data.pv << "   "  << data.obs_z << std:: endl;
+        <<  data.vel[2] << "   " <<  data.group_mass << "   " <<  data.theta << "   " <<  data.phi << "   " <<  data.pv << "   "  << data.obs_z << std:: endl;*/
 
         if(fabs(data.true_z)>1e-4){
           pinPLC->id.push_back(data.group_id);

@@ -199,8 +199,19 @@ int main(int argc, char** argv){
 	        if(r<=dr){
 	           for(int ij=0;ij<p.nzs;ij++){
 		           // this need to be in Mpc/h physical!!!
-		           if(redshift>=p.z1[ij] && redshift<p.zs[ij])
-		             kappa[ij][ii+p.nx*jj]+=(nLha->kappaz(Dl*r/rs,Rz)*dlens[ij]);
+		           if(redshift>=p.z1[ij] && redshift<p.zs[ij]){
+#ifdef ROTATE_MAP
+                 double xx = ii-p.nx*1.0/2.0;
+                 double yy = jj-p.ny*1.0/2.0;
+                 double rr = sqrt(xx*xx+yy*yy);
+                 double theta = atan2(yy,xx);
+                 int i =  rr*cos(theta-M_PI/2.0)+p.nx*1.0/2.0;
+                 int j = -rr*sin(theta-M_PI/2.0)+p.ny*1.0/2.0;
+                 kappa[ij][i+p.nx*j]+=(nLha->kappaz(Dl*r/rs,Rz)*dlens[ij]);
+#else
+                 kappa[ij][ii+p.nx*jj]+=(nLha->kappaz(Dl*r/rs,Rz)*dlens[ij]);
+#endif
+               }
 		         }
 	         }
 	      }
